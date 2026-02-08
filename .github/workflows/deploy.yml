@@ -1,0 +1,24 @@
+name: L.A.R.A Auto Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_IP }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/LARA-project
+            git pull origin main
+            docker-compose up -d --build
+            echo "Deployment successful: $(date)" >> /root/LARA-project/logs/deploy.log
